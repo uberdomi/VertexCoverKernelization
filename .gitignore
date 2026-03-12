@@ -211,3 +211,6 @@ __marimo__/
 # IDE files
 .vscode/
 .idea/
+
+# Input data
+data/

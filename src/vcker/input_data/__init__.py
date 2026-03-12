@@ -1,3 +1,3 @@
-from .bhoslib import bhoslib_test_run
+from .bhoslib import BhoslibHandler
 
-__all__ = ["bhoslib_test_run"]
+__all__ = ["BhoslibHandler"]

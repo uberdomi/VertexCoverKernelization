@@ -1,6 +1,9 @@
+import io
+import re
+from pathlib import Path
+
 import pandas as pd
 from tqdm import tqdm
-from pathlib import Path
 
 
 class Graph:
@@ -11,7 +14,7 @@ class Graph:
         self._directed = False
 
         if size is not None:
-            self._nodes = set(range(1, size + 1))
+            self._nodes = set(range(size))
         else:
             self._nodes = set()
 
@@ -28,7 +31,7 @@ class Graph:
         for row in tqdm(
             edge_df.itertuples(index=False), desc=f"Adding {len(edge_df)} edges..."
         ):
-            self.add_edge(row.src, row.dst) # type: ignore
+            self.add_edge(row.src, row.dst)  # type: ignore
 
     def add_edge(self, src: int, dst: int) -> None:
         if src not in self._edges:
@@ -50,11 +53,11 @@ class Graph:
 
     def print_info(self) -> None:
         n = len(self._nodes)
-        m_max = n * (n - 1) if not self._directed else n * n
-        m = self._n_edges
+        m_max = n * (n - 1) // 2 if not self._directed else n * n
+        m = self._n_edges if self._directed else self._n_edges // 2
 
         print(
-            f"The graph contains {n} nodes and {m} (directed) edges, covering {(100 * m / m_max):.2f}% for an average vertex degree of {(m/n):.2f}"
+            f"The graph contains {n} nodes and {m} (directed) edges, covering {(100 * m / m_max):.2f}% for an average vertex degree of {(m / n):.2f}"
         )
 
     # --- File I/O
@@ -62,26 +65,39 @@ class Graph:
 
     @classmethod
     def from_file(cls, filepath: Path) -> "Graph":
-        assert str(filepath).endswith(".clq"), "Invalid file name (expected .clq format)!"
-        
-        n_vertices = 0
-        edges = []
+        assert str(filepath).endswith(".clq"), (
+            "Invalid file name (expected .clq format)!"
+        )
+
         with open(filepath) as f:
-            for line in f:
-                if line.startswith("p "):
-                    n_vertices = int(line.split()[2])
-                elif line.startswith("e "):
-                    parts = line.split()
-                    edges.append((int(parts[1]) - 1, int(parts[2]) - 1))
+            content = f.read()
+
+        # Extract the p-line
+        m = re.search(r"^p edge (\d+) (\d+)", content, re.MULTILINE)
+        assert m is not None, "No Regex match!"
+        n_vertices = int(m.group(1))
+
+        # Feed only edge lines to pandas
+        edge_lines = "\n".join(
+            line[2:] for line in content.splitlines() if line.startswith("e ")
+        )
+        df = pd.read_csv(
+            io.StringIO(edge_lines),
+            sep=" ",
+            names=["src", "dst"],
+            dtype="int32",
+        )
+        df -= 1  # convert to 0-indexed
+
         g = cls(size=n_vertices)
-        for src, dst in edges:
-            g.add_edge(src, dst)
+        g.add_edges(edge_df=df)
+
         return g
 
     def to_file(self, filepath: Path) -> None:
         with open(filepath, "w") as f:
             f.write("c Saved by vcker\n")
-            f.write(f"p edge {len(self._nodes)} {self._n_edges}\n")
+            f.write(f"p edge {len(self._nodes)} {self._n_edges if self._directed else self._n_edges // 2}\n")
             for src, dsts in self._edges.items():
                 for dst in dsts:
                     if self._directed or src < dst:

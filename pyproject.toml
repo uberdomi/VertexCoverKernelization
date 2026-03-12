@@ -5,11 +5,7 @@ description = "A benchmark of various kernelization methods for the parametrized
 readme = "README.md"
 requires-python = ">=3.13"
 # --- Dependencies---
-dependencies = [
-    "pandas>=3.0.1",
-    "requests>=2.32.5",
-    "tqdm>=4.67.3",
-]
+dependencies = ["pandas>=3.0.1", "requests>=2.32.5", "tqdm>=4.67.3"]
 
 [dependency-groups]
 dev = [
@@ -25,6 +21,15 @@ jupyter = [
     "jupyterlab>=4.5.5",
     "nbconvert>=7.17.0",
     "notebook>=7.5.4",
+]
+
+# --- Testing ---
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v -m 'not integration'"
+markers = [
+    "quick: fast tests that run against already-downloaded data",
+    "integration: end-to-end tests that download data from scratch (very slow)",
 ]
 
 # --- Packaging ---

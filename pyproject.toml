@@ -5,7 +5,13 @@ description = "A benchmark of various kernelization methods for the parametrized
 readme = "README.md"
 requires-python = ">=3.13"
 # --- Dependencies---
-dependencies = ["pandas>=3.0.1", "requests>=2.32.5", "tqdm>=4.67.3"]
+dependencies = [
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.3",
+    "pandas>=3.0.1",
+    "requests>=2.32.5",
+    "tqdm>=4.67.3",
+]
 
 [dependency-groups]
 dev = [

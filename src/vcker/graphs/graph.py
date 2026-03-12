@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 from tqdm import tqdm
 
 
@@ -70,6 +71,9 @@ class Graph:
 
     def degree(self, v: int) -> int:
         return len(self._edges.get(v, set()))
+
+    def get_degree_distribution(self) -> np.ndarray:
+        return np.array([self.degree(i) for i in self._nodes])
 
     def print_info(self) -> None:
         n = self.n_vertices

@@ -100,7 +100,7 @@ class BhoslibHandler:
 
         self._data_downloaded = True
 
-    def get_graphs(self) -> Iterator[Graph]:
+    def get_named_graphs(self) -> Iterator[tuple[str, Graph]]:
         """Yield one Graph per downloaded .clq file, loading via the fast pandas path."""
         if not self._data_downloaded:
             logger.info("BHOSLIB data not downloaded yet, downloading now...")
@@ -110,7 +110,7 @@ class BhoslibHandler:
         for filepath in clq_paths:
             logger.info(f"Loading graph from {filepath.name}")
             g = Graph.from_file(filepath)
-            yield g
+            yield filepath.stem, g
 
 
 # ---------------------------------------------------------------------------
@@ -129,7 +129,8 @@ def bhoslib_test_run():
     handler = BhoslibHandler()
     handler.download_data()
 
-    for graph in handler.get_graphs():
+    for filename, graph in handler.get_named_graphs():
+        print(f"Processing {filename}")
         graph.print_info()
 
 

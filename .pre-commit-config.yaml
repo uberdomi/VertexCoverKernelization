@@ -1,0 +1,25 @@
+default_install_hook_types:
+  - pre-commit
+  - post-checkout
+  - post-merge
+  - post-rewrite
+repos:
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.10.9
+    hooks:
+      - id: uv-sync # Sync dependencies upon branch checkout, pull or rebase 
+        args: [--all-groups]
+      - id: uv-lock # Sync uv.lock with pyproject.toml
+      - id: uv-export # Sync requirements.txt with uv.lock
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.15.5
+    hooks:
+      # Run the linter.
+      - id: ruff-check
+        types_or: [ python, pyi ] # Disallow Jupyter
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
+        types_or: [ python, pyi ]

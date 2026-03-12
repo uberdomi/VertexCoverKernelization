@@ -114,11 +114,13 @@ class BhoslibHandler:
 
 
 # ---------------------------------------------------------------------------
-# Entry point for quick testing
+# Entry point for quick manual testing
 # ---------------------------------------------------------------------------
 
 
-def bhoslib_test_run():
+def main():
+    import logging
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -132,10 +134,6 @@ def bhoslib_test_run():
     for filename, graph in handler.get_named_graphs():
         print(f"Processing {filename}")
         graph.print_info()
-
-
-def main():
-    bhoslib_test_run()
 
 
 if __name__ == "__main__":

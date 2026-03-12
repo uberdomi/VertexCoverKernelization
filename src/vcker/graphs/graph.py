@@ -21,6 +21,8 @@ class Graph:
         self._edges = {}
         self._n_edges = 0
 
+    # --- Graph creation
+
     def add_edges(self, edge_df: pd.DataFrame) -> None:
         # 'edge_df' should have 'src' and 'dst' columns
         if set(edge_df.columns) != {"src", "dst"}:
@@ -29,7 +31,9 @@ class Graph:
             )
 
         for row in tqdm(
-            edge_df.itertuples(index=False), desc=f"Adding {len(edge_df)} edges..."
+            edge_df.itertuples(index=False),
+            total=len(edge_df),
+            desc=f"Adding {len(edge_df)} edges...",
         ):
             self.add_edge(row.src, row.dst)  # type: ignore
 
@@ -51,10 +55,26 @@ class Graph:
         if not self._directed and src < dst:
             self.add_edge(dst, src)
 
+    # --- Graph information
+
+    @property
+    def n_vertices(self) -> int:
+        return len(self._nodes)
+
+    @property
+    def n_edges(self) -> int:
+        return self._n_edges if self._directed else self._n_edges // 2
+
+    def neighbors(self, v: int) -> set[int]:
+        return self._edges.get(v, set())
+
+    def degree(self, v: int) -> int:
+        return len(self._edges.get(v, set()))
+
     def print_info(self) -> None:
-        n = len(self._nodes)
+        n = self.n_vertices
         m_max = n * (n - 1) // 2 if not self._directed else n * n
-        m = self._n_edges if self._directed else self._n_edges // 2
+        m = self.n_edges
 
         print(
             f"The graph contains {n} nodes and {m} (directed) edges, covering {(100 * m / m_max):.2f}% for an average vertex degree of {(m / n):.2f}"
@@ -97,7 +117,7 @@ class Graph:
     def to_file(self, filepath: Path) -> None:
         with open(filepath, "w") as f:
             f.write("c Saved by vcker\n")
-            f.write(f"p edge {len(self._nodes)} {self._n_edges if self._directed else self._n_edges // 2}\n")
+            f.write(f"p edge {self.n_vertices} {self.n_edges}\n")
             for src, dsts in self._edges.items():
                 for dst in dsts:
                     if self._directed or src < dst:

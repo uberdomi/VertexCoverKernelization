@@ -77,7 +77,7 @@ class Graph:
         m = self.n_edges
 
         print(
-            f"The graph contains {n} nodes and {m} (directed) edges, covering {(100 * m / m_max):.2f}% for an average vertex degree of {(m / n):.2f}"
+            f"The graph contains {n} nodes and {m} (directed) edges, covering {(100 * m / m_max):.2f}% for an average degree of {(m / n if self._directed else 2 * m / n):.2f}"
         )
 
     # --- File I/O

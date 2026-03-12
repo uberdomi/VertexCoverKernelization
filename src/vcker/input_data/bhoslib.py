@@ -1,3 +1,5 @@
+"""Implementation of a handler class for the BHOSLIB - Benchmarks with Hidden Optimum Solutions - benchmark graph datasets."""
+
 import logging
 from collections.abc import Iterator
 from pathlib import Path

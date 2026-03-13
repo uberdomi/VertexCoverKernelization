@@ -20,6 +20,8 @@ class BhoslibHandler(Handler):
             force_redownload=force_redownload,
         )
 
+        self._url_list: list[str] = []
+
     # --- Implementations
 
     @override

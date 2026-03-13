@@ -1,5 +1,6 @@
 """Implementation of a handler class for the BHOSLIB - Benchmarks with Hidden Optimum Solutions - benchmark graph datasets."""
 
+import random
 from pathlib import Path
 from typing import override
 
@@ -8,11 +9,13 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 from .base import Handler
-from .utils import url_filename, download_url
+from .utils import download_url, url_filename
 
 
 class BhoslibHandler(Handler):
     _input_link = "https://iridia.ulb.ac.be/~fmascia/maximum_clique/BHOSLIB-benchmark"
+    # Adjust
+    _n_instances = 5
 
     def __init__(self, force_redownload: bool = False) -> None:
         super().__init__(
@@ -22,6 +25,9 @@ class BhoslibHandler(Handler):
         )
 
         self._url_list: list[str] = []
+
+        # Seed for reproducibility
+        random.seed(2026)
 
     # --- Implementations
 
@@ -37,12 +43,18 @@ class BhoslibHandler(Handler):
             response.raise_for_status()
 
             soup = BeautifulSoup(response.text, "html.parser")
-            self._url_list = [
+            full_list = [
                 str(a["href"])
                 for a in soup.find_all("a", href=True)
                 if "/BHOSLIB/" in str(a["href"]) and (str(a["href"]).endswith(".clq"))
             ]
-            self.logger.info(f"Found {len(self._url_list)} file(s) on the page.")
+
+            # Sample a random subset
+            self._url_list = random.sample(full_list, self._n_instances)
+
+            self.logger.info(
+                f"Found {len(full_list)} file(s) on the page, kept {len(self._url_list)} randomly selected ones."
+            )
 
         return tqdm(self._url_list, desc="Downloading files", unit="file")
 

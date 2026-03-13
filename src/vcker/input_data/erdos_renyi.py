@@ -1,24 +1,21 @@
 """Implementation of the Erdös-Renyi Random Graphs - https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model"""
 
-import logging
-from collections.abc import Iterator
-from typing import ClassVar
-from pathlib import Path
-
 import random
+from pathlib import Path
+from typing import ClassVar, override
+
 from tqdm import tqdm
 
 from ..graphs import Graph
-from .utils import get_data_folder
-
-logger = logging.getLogger(__name__)
+from .base import Handler
 
 
-class ErdosRenyiHandler:
+class ErdosRenyiHandler(Handler):
     """Erdös-Renyi Random Graphs - https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model"""
 
     # Adjust parameters
-    configs: ClassVar[list[tuple[int, float]]] = [  # n - p
+    configs: ClassVar[list[tuple[int, float]]] = [
+        # n - p tuples
         (500, 0.6),
         (500, 0.7),
         (500, 0.8),
@@ -27,28 +24,34 @@ class ErdosRenyiHandler:
     ]
 
     def __init__(self, force_redownload: bool = False) -> None:
-        self.force_redownload = force_redownload
+        super().__init__(
+            folder_name="erdos_renyi",
+            class_name="Erdös-Renyi",
+            force_redownload=force_redownload,
+        )
+
         # Seed for reproducibility
         random.seed(2026)
 
-        self._root_folder = get_data_folder() / "erdos_renyi"
-        self._root_folder.mkdir(parents=True, exist_ok=True)
+    # --- Implementations
 
-        self._downloaded_paths: list[Path] = []
+    @override
+    def get_instances(self) -> tqdm:
+        return tqdm(
+            self.configs,
+            desc=f"Creating {self.class_name} instances...",
+            total=len(self.configs),
+        )
 
-    # --- Private functions
+    @override
+    def instance_filename(self, instance: tuple[int, float]) -> str:
+        n, p = instance
 
-    def _download_instance(
-        self,
-        n: int,
-        p: float,
-    ) -> None:
-        filepath = self._root_folder / f"er_graph_{n}_{p:.1f}.clq"
+        return f"er_graph_{n}_{p:.1f}.clq"
 
-        if not self.force_redownload and filepath.exists():
-            logger.info(f"  Skipping {filepath.stem!s:<30} (already exists)")
-            self._downloaded_paths.append(filepath)
-            return
+    @override
+    def download_instance(self, instance: tuple[int, float], filepath: Path) -> None:
+        n, p = instance
 
         # Create a list of all possible (undirected) edges from a complete graph with 'n' nodes
         edge_list = [(src, dst) for dst in range(n) for src in range(dst)]
@@ -63,31 +66,3 @@ class ErdosRenyiHandler:
 
         # Save the graph
         g.to_file(filepath)
-        self._downloaded_paths.append(filepath)
-        logger.info(f"  Saved to {filepath.stem}")
-
-    # --- Main functionalities
-
-    def download_data(self) -> None:
-        self._downloaded_paths: list[Path] = []
-
-        for n, p in tqdm(
-            self.configs,
-            desc="Creating Erdös-Renyi instances...",
-            total=len(self.configs),
-        ):
-            self._download_instance(n, p)
-
-        self._data_downloaded = True
-
-    def get_named_graphs(self) -> Iterator[tuple[str, Graph]]:
-        """Yield one Graph per downloaded .clq file, loading via the fast pandas path."""
-        if not self._data_downloaded:
-            logger.info("Erdös-Renyi data not downloaded yet, downloading now...")
-            self.download_data()
-
-        clq_paths = sorted(p for p in self._downloaded_paths if p.suffix == ".clq")
-        for filepath in clq_paths:
-            logger.info(f"Loading graph from {filepath.name}")
-            g = Graph.from_file(filepath)
-            yield filepath.stem, g

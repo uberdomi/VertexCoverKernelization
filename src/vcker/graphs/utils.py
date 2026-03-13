@@ -27,7 +27,7 @@ def load_clq(filepath: Path) -> tuple[int, pd.DataFrame]:
         io.StringIO(edge_lines),
         sep=" ",
         names=["src", "dst"],
-        dtype="int32",
+        dtype="int64",
     )
     df -= 1  # convert to 0-indexed
 
@@ -55,8 +55,55 @@ def load_gr(filepath: Path) -> tuple[int, pd.DataFrame]:
         io.StringIO(edge_lines),
         sep=" ",
         names=["src", "dst"],
-        dtype="int32",
+        dtype="int64",
     )
     df -= 1  # convert to 0-indexed
+
+    return n_vertices, df
+
+
+def preprocess_txt_file(filepath: Path) -> str:
+    cleaned_data = []
+
+    # regex for one or more horizontal whitespace characters (space or tab)
+    # [ \t]+ targets specifically horizontal space
+    whitespace_pattern = re.compile(r"[ \t]+")
+
+    with open(filepath, "r") as f:
+        for line in f:
+            # 1. Skip comments
+            if line.startswith("#"):
+                continue
+
+            # 2. Strip trailing/leading newline/whitespace
+            line = line.strip()
+            if not line:
+                continue
+
+            # 3. Squeeze multiple spaces/tabs into a single ' '
+            normalized_line = whitespace_pattern.sub(" ", line)
+            cleaned_data.append(normalized_line)
+
+    # Convert the list of strings into a single string for pandas
+    edge_lines = "\n".join(cleaned_data)
+
+    return edge_lines
+
+
+def load_txt(filepath: Path) -> tuple[int, pd.DataFrame]:
+    assert str(filepath).endswith(".txt"), "Invalid file name (expected .txt format)!"
+
+    # File cleanup
+    edge_lines = preprocess_txt_file(filepath)
+
+    df = pd.read_csv(
+        io.StringIO(edge_lines),
+        sep=" ",
+        names=["src", "dst"],
+        dtype="int64",
+    )
+    # df -= 1  # Don't convert to 0-indexed - already starting at 0
+
+    n_vertices = len(set(df["src"].to_list()) | set(df["dst"].to_list()))
 
     return n_vertices, df

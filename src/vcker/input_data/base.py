@@ -83,7 +83,9 @@ class Handler(ABC):
             self.logger.warning(f"{self.class_name} not yet downloaded!")
             return []
 
-        return sorted(p for p in self._downloaded_paths if p.suffix in {".clq", ".gr"})
+        return sorted(
+            p for p in self._downloaded_paths if p.suffix in Graph.supported_suffixes
+        )
 
     # --- Main functionalities
 

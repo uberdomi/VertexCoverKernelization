@@ -1,13 +1,14 @@
 from pathlib import Path
-
+from typing import ClassVar
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-from .utils import load_clq, load_gr
+from .utils import load_clq, load_gr, load_txt
 
 
 class Graph:
+    supported_suffixes: ClassVar[set[str]] = {".clq", ".gr", ".txt"}
     _nodes: set[int]
     _edges: dict[int, set[int]]
 
@@ -85,7 +86,7 @@ class Graph:
         )
 
     # --- File I/O
-    # Using the DIMACS ASCII format (.clq files) or .gr files
+    # Using the DIMACS ASCII format (.clq files) - or .gr, .txt
 
     @classmethod
     def from_file(cls, filepath: Path) -> "Graph":
@@ -93,8 +94,12 @@ class Graph:
             n_vertices, df = load_clq(filepath)
         elif str(filepath).endswith(".gr"):
             n_vertices, df = load_gr(filepath)
+        elif str(filepath).endswith(".txt"):
+            n_vertices, df = load_txt(filepath)
         else:
-            raise ValueError("Invalid file name (expected .clq or .gr format)!")
+            raise ValueError(
+                f"Invalid file name - expected suffix {Graph.supported_suffixes}!"
+            )
 
         g = cls(size=n_vertices)
         g.add_edges(edge_df=df)

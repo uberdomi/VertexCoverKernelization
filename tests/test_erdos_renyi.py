@@ -31,7 +31,7 @@ _EXPECTED_CONFIGS = ErdosRenyiHandler.configs
 class TestErdosRenyiHandlerQuick(BaseHandlerTests):
     """Fast smoke-tests against already-generated Erdös-Renyi data."""
 
-    handler_class = ErdosRenyiHandler
+    handler_class = "ErdosRenyi"
     expected_count = len(_EXPECTED_CONFIGS)
 
     def test_graphs_have_correct_vertex_counts(self):
@@ -57,5 +57,5 @@ class TestErdosRenyiHandlerQuick(BaseHandlerTests):
 class TestErdosRenyiHandlerIntegration(BaseHandlerIntegrationTests):
     """End-to-end tests that wipe and regenerate all Erdös-Renyi data."""
 
-    handler_class = ErdosRenyiHandler
+    handler_class = "ErdosRenyi"
     expected_count = len(_EXPECTED_CONFIGS)

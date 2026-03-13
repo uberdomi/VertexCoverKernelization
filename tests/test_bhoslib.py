@@ -26,7 +26,7 @@ from .handler_test_base import BaseHandlerIntegrationTests, BaseHandlerTests
 class TestBhoslibHandlerQuick(BaseHandlerTests):
     """Fast smoke-tests against already-downloaded BHOSLIB data."""
 
-    handler_class = BhoslibHandler
+    handler_class = "BHOSLIB"
     expected_count = None  # number of files depends on the remote page
 
     @pytest.mark.skip(
@@ -55,5 +55,5 @@ class TestBhoslibHandlerQuick(BaseHandlerTests):
 class TestBhoslibHandlerIntegration(BaseHandlerIntegrationTests):
     """End-to-end tests that wipe and re-download all BHOSLIB data."""
 
-    handler_class = BhoslibHandler
+    handler_class = "BHOSLIB"
     expected_count = None  # number of files depends on the remote page

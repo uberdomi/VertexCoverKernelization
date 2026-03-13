@@ -32,11 +32,9 @@ Usage (integration)::
         expected_count = len(MyHandler.configs)
 """
 
-import shutil
-
 import pytest
 
-from vcker.input_data.base import Handler
+from vcker.input_data import Handler, get_handler, supported_handlers
 
 
 class BaseHandlerTests:
@@ -46,11 +44,11 @@ class BaseHandlerTests:
     prior run).  Safe to run on every commit when data is cached.
     """
 
-    handler_class: type[Handler]
+    handler_class: supported_handlers
     expected_count: int | None = None
 
     def make_handler(self, force_redownload: bool = False) -> Handler:
-        return self.handler_class(force_redownload=force_redownload)
+        return get_handler(self.handler_class, force_redownload)
 
     def test_skip_existing_files(self):
         """download_data() with force_redownload=False skips already-present files."""
@@ -109,18 +107,16 @@ class BaseHandlerIntegrationTests:
     re-downloads) everything from scratch.
     """
 
-    handler_class: type[Handler]
+    handler_class: supported_handlers
     expected_count: int | None = None
 
     def make_handler(self, force_redownload: bool = True) -> Handler:
-        return self.handler_class(force_redownload=force_redownload)
+        return get_handler(self.handler_class, force_redownload)
 
     @pytest.fixture(autouse=True)
     def clean_data_folder(self):
         """Wipe the handler's data folder before each integration test."""
-        folder = self.handler_class(force_redownload=False).get_root()
-        if folder.exists():
-            shutil.rmtree(folder)
+        self.make_handler().delete_data()
         yield
 
     def test_files_exist_after_download(self):

@@ -31,7 +31,7 @@ _EXPECTED_CONFIGS = BarabasiAlbertHandler.configs
 class TestBarabasiAlbertHandlerQuick(BaseHandlerTests):
     """Fast smoke-tests against already-generated Barabási-Albert data."""
 
-    handler_class = BarabasiAlbertHandler
+    handler_class = "BarabasiAlbert"
     expected_count = len(_EXPECTED_CONFIGS)
 
     def test_graphs_have_correct_vertex_counts(self):
@@ -57,5 +57,5 @@ class TestBarabasiAlbertHandlerQuick(BaseHandlerTests):
 class TestBarabasiAlbertHandlerIntegration(BaseHandlerIntegrationTests):
     """End-to-end tests that wipe and regenerate all Barabási-Albert data."""
 
-    handler_class = BarabasiAlbertHandler
+    handler_class = "BarabasiAlbert"
     expected_count = len(_EXPECTED_CONFIGS)

@@ -83,7 +83,7 @@ class Handler(ABC):
             self.logger.warning(f"{self.class_name} not yet downloaded!")
             return []
 
-        return sorted(p for p in self._downloaded_paths if p.suffix == ".clq")
+        return sorted(p for p in self._downloaded_paths if p.suffix in {".clq", ".gr"})
 
     # --- Main functionalities
 
@@ -109,7 +109,7 @@ class Handler(ABC):
         self._data_downloaded = True
 
     def get_named_graphs(self) -> Iterator[tuple[str, Graph]]:
-        """Yield one Graph per downloaded .clq file, loading via the fast pandas path."""
+        """Yield one Graph per downloaded .clq/.gr file, loading via the fast pandas path."""
         if not self._data_downloaded:
             self.logger.info(
                 f"{self.class_name} data not downloaded yet, downloading now..."

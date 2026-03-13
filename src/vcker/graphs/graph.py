@@ -1,10 +1,10 @@
-import io
-import re
 from pathlib import Path
 
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+
+from .utils import load_clq, load_gr
 
 
 class Graph:
@@ -85,33 +85,16 @@ class Graph:
         )
 
     # --- File I/O
-    # Using the DIMACS ASCII format (.clq files)
+    # Using the DIMACS ASCII format (.clq files) or .gr files
 
     @classmethod
     def from_file(cls, filepath: Path) -> "Graph":
-        assert str(filepath).endswith(".clq"), (
-            "Invalid file name (expected .clq format)!"
-        )
-
-        with open(filepath) as f:
-            content = f.read()
-
-        # Extract the p-line
-        m = re.search(r"^p edge (\d+) (\d+)", content, re.MULTILINE)
-        assert m is not None, "No Regex match!"
-        n_vertices = int(m.group(1))
-
-        # Feed only edge lines to pandas
-        edge_lines = "\n".join(
-            line[2:] for line in content.splitlines() if line.startswith("e ")
-        )
-        df = pd.read_csv(
-            io.StringIO(edge_lines),
-            sep=" ",
-            names=["src", "dst"],
-            dtype="int32",
-        )
-        df -= 1  # convert to 0-indexed
+        if str(filepath).endswith(".clq"):
+            n_vertices, df = load_clq(filepath)
+        elif str(filepath).endswith(".gr"):
+            n_vertices, df = load_gr(filepath)
+        else:
+            raise ValueError("Invalid file name (expected .clq or .gr format)!")
 
         g = cls(size=n_vertices)
         g.add_edges(edge_df=df)

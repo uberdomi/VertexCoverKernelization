@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 from .base import Handler
+from .utils import url_filename, download_url
 
 
 class BhoslibHandler(Handler):
@@ -49,27 +50,11 @@ class BhoslibHandler(Handler):
     def instance_filename(self, instance: str) -> str:
         url = instance
 
-        return url.rsplit("/", 1)[-1]
+        return url_filename(url)
 
     @override
     def download_instance(self, instance: str, filepath: Path) -> None:
         url = instance
         self.logger.info(f"  Downloading {filepath.stem}")
 
-        with requests.get(url, stream=True, timeout=120) as resp:
-            resp.raise_for_status()
-            total = int(resp.headers.get("content-length", 0))
-            with (
-                open(filepath, "wb") as fout,
-                tqdm(
-                    total=total or None,
-                    unit="B",
-                    unit_scale=True,
-                    unit_divisor=1024,
-                    desc=f"  {filepath.stem}",
-                    leave=False,
-                ) as bar,
-            ):
-                for chunk in resp.iter_content(chunk_size=65536):
-                    fout.write(chunk)
-                    bar.update(len(chunk))
+        download_url(url, filepath)

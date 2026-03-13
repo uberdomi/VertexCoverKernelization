@@ -1,11 +1,14 @@
 from .bhoslib import BhoslibHandler
 from .erdos_renyi import ErdosRenyiHandler
 from .barabasi_albert import BarabasiAlbertHandler
+from .pace2019 import Pace2019Handler
 from .base import Handler
 
 from typing import Literal
 
-supported_handlers = Literal["BHOSLIB", "ErdosRenyi", "BarabasiAlbert"]
+supported_handlers = Literal[
+    "BHOSLIB", "ErdosRenyi", "BarabasiAlbert", "Pace2019Handler"
+]
 
 
 def get_handler(
@@ -19,6 +22,8 @@ def get_handler(
             return ErdosRenyiHandler(force_download)
         case "BarabasiAlbert":
             return BarabasiAlbertHandler(force_download)
+        case "Pace2019Handler":
+            return Pace2019Handler(force_download)
         case _:
             raise ValueError(f"Invalid class provided: {cls}")
 
@@ -30,4 +35,5 @@ __all__ = [
     "BhoslibHandler",
     "ErdosRenyiHandler",
     "BarabasiAlbertHandler",
+    "Pace2019Handler",
 ]

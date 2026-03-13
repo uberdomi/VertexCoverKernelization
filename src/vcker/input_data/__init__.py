@@ -1,5 +1,5 @@
 from .bhoslib import BhoslibHandler
 from .erdos_renyi import ErdosRenyiHandler
-from .pam import PamHandler
+from .barabasi_albert import BarabasiAlbertHandler
 
-__all__ = ["BhoslibHandler", "ErdosRenyiHandler", "PamHandler"]
+__all__ = ["BhoslibHandler", "ErdosRenyiHandler", "BarabasiAlbertHandler"]

@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class ErdosRenyiHandler:
+    """Erdös-Renyi Random Graphs - https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model"""
+
     # Adjust parameters
     configs: ClassVar[list[tuple[int, float]]] = [  # n - p
         (500, 0.6),

@@ -1,4 +1,4 @@
-"""Preferential Attachment Model (PAM) - heavy-tailed graph distribution with specific clustering coefficient and a small diameter - fitting observed evidence (e.g. WWW graphs). Vertices are organized around “clusters” of high degree vertices. Apart from the WWW, such models resemble graphs emerging by distinct applications such as collaboration networks (i.e. in biology, in science, or in film actors), word co-occurrences, or neural networks"""
+"""Barabási-Albert Model - heavy-tailed graph distribution using the preferential attachment mechanism with specific clustering coefficient and a small diameter - fitting observed evidence (e.g. WWW graphs). Vertices are organized around “clusters” of high degree vertices. Apart from the WWW, such models resemble graphs emerging by distinct applications such as collaboration networks (i.e. in biology, in science, or in film actors), word co-occurrences, or neural networks"""
 
 import logging
 from collections.abc import Iterator
@@ -14,8 +14,8 @@ from .utils import get_data_folder
 logger = logging.getLogger(__name__)
 
 
-class PamHandler:
-    """Preferential Attachment Model (PAM) - heavy-tailed graph distribution with specific clustering coefficient and a small diameter"""
+class BarabasiAlbertHandler:
+    """Barabási-Albert Model - heavy-tailed graph distribution using the preferential attachment mechanism with specific clustering coefficient and a small diameter. https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model"""
 
     # Adjust parameters
     configs: ClassVar[list[tuple[int, int]]] = [  # n - m
@@ -30,7 +30,7 @@ class PamHandler:
         # Seed for reproducibility
         self._rng = np.random.default_rng(seed=2026)
 
-        self._root_folder = get_data_folder() / "pam"
+        self._root_folder = get_data_folder() / "barabasi_albert"
         self._root_folder.mkdir(parents=True, exist_ok=True)
 
         self._downloaded_paths: list[Path] = []
@@ -56,7 +56,7 @@ class PamHandler:
 
         """
         assert m < n, f"The m parameter must be (a lot) smaller than n, got {m} vs {n}!"
-        filepath = self._root_folder / f"pam_graph_{n}_{m}.clq"
+        filepath = self._root_folder / f"ba_graph_{n}_{m}.clq"
 
         if not self.force_redownload and filepath.exists():
             logger.info(f"  Skipping {filepath.stem!s:<30} (already exists)")
@@ -101,7 +101,7 @@ class PamHandler:
 
         for n, m in tqdm(
             self.configs,
-            desc="Creating PAM instances...",
+            desc="Creating Barabási-Albert instances...",
             total=len(self.configs),
         ):
             self._download_instance(n, m)

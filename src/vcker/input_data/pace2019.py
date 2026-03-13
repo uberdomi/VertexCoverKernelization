@@ -34,10 +34,7 @@ class Pace2019Handler(Handler):
 
     @override
     def get_instances(self) -> tqdm:
-        """Parse the BHOSLIB benchmark page and store all .clq and .clq.b download URLs.
-
-        No-op if URLs have already been fetched.
-        """
+        """Download the .zip file and choose a random subset of the available datasets."""
         if not self._zip_path:
             self.logger.info(f"Fetching zip file list from: {self._input_link}")
 
@@ -61,6 +58,7 @@ class Pace2019Handler(Handler):
                     self.logger.info(
                         f"  Skipping {filepath.stem!s:<30} (already exists)"
                     )
+                    self._zip_path = filepath
                     continue
 
                 download_url(url, filepath)

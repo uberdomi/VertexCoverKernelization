@@ -1,3 +1,4 @@
+import gzip
 import zipfile
 from pathlib import Path
 
@@ -79,3 +80,24 @@ def unzip_to_folder(zip_path: Path, target_dir):
                 target.write(source.read())
 
     print(f"Extracted to: {target_dir}")
+
+
+def unpack_txt_gz_file(filepath: Path) -> None:
+    out_path = filepath.with_suffix("")  # drops .gz  -> .txt
+    with gzip.open(filepath, "rb") as f_in, open(out_path, "wb") as f_out:
+        f_out.write(f_in.read())
+
+
+def unpack_txt_gz_files(folder: Path) -> None:
+    """Decompress all .txt.gz files in the given folder in-place.
+
+    Each .txt.gz file is decompressed to a .txt file in the same folder.
+    The original archive is left untouched.
+
+    Args:
+        folder: Folder containing .txt.gz files to unpack.
+    """
+    gz_files = list(folder.glob("*.txt.gz"))
+
+    for gz_path in tqdm(gz_files, desc="Unpacking"):
+        unpack_txt_gz_file(gz_path)
